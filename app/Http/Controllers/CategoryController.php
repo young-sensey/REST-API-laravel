@@ -3,23 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Category;
-use App\Product;
 
 class CategoryController extends Controller
 {
     /**
      * Get all categories
      *
-     * @return Category[]|\Illuminate\Database\Eloquent\Collection
+     * @return mixed
      */
     public static function index()
     {
-        $categories = Category::all();
-        foreach ($categories as $category) {
-            $count = Product::where('category_id', '=', $category['id'])->count();
-            $category['products_count'] = $count;
-        }
-
-        return $categories;
+        return Category::withCount('products')->get();
     }
 }

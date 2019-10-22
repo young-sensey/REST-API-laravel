@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class Category extends Model
 {
@@ -17,17 +16,12 @@ class Category extends Model
     public $timestamps = false;
 
     /**
-     * Get information about category
+     * Get products for category.
      *
-     * @param $category_id
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public static function getCategory($category_id)
+    public function products()
     {
-        $category = DB::table('categories')
-            ->select('id', 'name', 'description')
-            ->where('id', '=', $category_id)
-            ->get()->first();
-        return $category;
+        return $this->hasMany('App\Product');
     }
 }
