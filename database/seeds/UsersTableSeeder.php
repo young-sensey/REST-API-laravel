@@ -12,25 +12,18 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        User::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        $faker = \Faker\Factory::create();
+        if (!User::count()) {
+            $faker = \Faker\Factory::create();
 
-        $password = Hash::make('toptal');
+            $password = Hash::make('toptal');
 
-        User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@test.com',
-            'password' => $password,
-        ]);
-
-        for ($i = 0; $i < 10; $i++) {
-            User::create([
-                'name' => $faker->name,
-                'email' => $faker->email,
-                'password' => $password,
-            ]);
+            for ($i = 0; $i < 10; $i++) {
+                User::insert([
+                    'name' => $faker->name,
+                    'email' => $faker->email,
+                    'password' => $password,
+                ]);
+            }
         }
     }
 }

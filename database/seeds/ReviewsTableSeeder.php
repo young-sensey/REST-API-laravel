@@ -14,19 +14,19 @@ class ReviewsTableSeeder extends Seeder
      */
     public function run()
     {
-        Review::truncate();
+        if (!Review::count()) {
+            $faker = \Faker\Factory::create();
+            $user_ids = User::all()->pluck('id')->toArray();
+            $product_ids = Product::all()->pluck('id')->toArray();
 
-        $faker = \Faker\Factory::create();
-        $user_ids = User::all()->pluck('id')->toArray();
-        $product_ids = Product::all()->pluck('id')->toArray();
-
-        for ($i = 0; $i < 40; $i++) {
-            Review::create([
-                'review' => $faker->text($maxNbChars = 30),
-                'rating' => $faker->numberBetween($min = 0, $max = 5),
-                'user_id' => $faker->randomElement($user_ids),
-                'product_id' => $faker->randomElement($product_ids)
-            ]);
+            for ($i = 0; $i < 40; $i++) {
+                Review::create([
+                    'review' => $faker->text($maxNbChars = 30),
+                    'rating' => $faker->numberBetween($min = 0, $max = 5),
+                    'user_id' => $faker->randomElement($user_ids),
+                    'product_id' => $faker->randomElement($product_ids)
+                ]);
+            }
         }
     }
 }
