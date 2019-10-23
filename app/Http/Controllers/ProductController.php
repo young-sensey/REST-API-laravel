@@ -3,56 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Product;
-use App\Review;
 use Illuminate\Support\Facades\Input;
 
 class ProductController extends Controller
 {
+    protected $productModel;
+
+    /**
+     * ProductController constructor.
+     * @param Product $productModel
+     */
+    public function __construct(Product $productModel)
+    {
+        $this->productModel = $productModel;
+    }
+
     /**
      * Get list of products with pagination
      *
-     * @return array
+     * @return \Illuminate\Http\JsonResponse
      */
-    public static function index()
+    public function index()
     {
         $category_id = Input::get('category');
-        $query = Product::select(['name', 'short_description', 'price', 'category_id'])
-            ->when(isset($category_id), function ($query) use ($category_id) {
+
+        $products = $this->productModel
+            ->select(['name', 'short_description', 'price', 'category_id'])
+            ->when($category_id, function ($query) use ($category_id) {
                 return $query->where('category_id', '=', $category_id);
-            });
+            })
+            ->paginate();
 
-        $products = $query->paginate();
-        $items = $products->items();
+        $products->transform(function ($product) {
+            return $product->load('category');
+        });
 
-        foreach ($items as $item) {
-            $item->push($item->category);
-            unset($item->category_id);
-        }
-
-        return [
-            'page' => $products->currentPage(),
-            'pages' => $products->lastPage(),
-            'data' => $items
-        ];
+        return response()->json(['products' => $products]);
     }
 
     /**
      * Get information about product
      *
      * @param $id
-     * @return mixed
+     * @return \Illuminate\Http\JsonResponse
      */
-    public static function show($id)
+    public function show($id)
     {
-        $product = Product::find($id);
+        $product = $this->productModel->find($id);
 
-        $product->average_rating = Review::getRating($id);
-        $product->category = $product->category;
+        $product->average_rating = round($product->reviews->avg('rating'), 1);
 
-        $product->reviews = Review::getReviews($id);
+        $product->load('category', 'reviews');
 
-        unset($product->category_id);
+        if ($product->reviews) {
+            foreach ($product->reviews as $review) {
+                $review->load(['user' => function ($query) {
+                    $query->select(['id', 'name']);
+                }]);
+            }
+        }
 
-        return $product;
+        return response()->json(['product' => $product]);
     }
 }

@@ -6,13 +6,26 @@ use App\Category;
 
 class CategoryController extends Controller
 {
+    protected $categoryModel;
+
+    /**
+     * CategoryController constructor.
+     * @param Category $categoryModel
+     */
+    public function __construct(Category $categoryModel)
+    {
+        $this->categoryModel = $categoryModel;
+    }
+
     /**
      * Get all categories
      *
-     * @return mixed
+     * @return \Illuminate\Http\JsonResponse
      */
-    public static function index()
+    public function __invoke()
     {
-        return Category::withCount('products')->get();
+        return response()->json([
+            'categories' => $this->categoryModel->withCount('products')->get()
+        ]);
     }
 }

@@ -23,8 +23,19 @@ class Product extends Model
 
     protected $perPage = 8;
 
+    /**
+     * Get product category
+     */
     public function category()
     {
         return $this->belongsTo('App\Category');
+    }
+
+    /**
+     * Get product reviews
+     */
+    public function reviews()
+    {
+        return $this->hasMany('App\Review');
     }
 }
