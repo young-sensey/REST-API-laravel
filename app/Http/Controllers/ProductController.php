@@ -44,13 +44,11 @@ class ProductController extends Controller
     /**
      * Get information about product
      *
-     * @param $id
+     * @param Product $product
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Product $product)
     {
-        $product = $this->productModel->find($id);
-
         $product->average_rating = round($product->reviews->avg('rating'), 1);
 
         $product->load('category', 'reviews');

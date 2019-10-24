@@ -22,7 +22,7 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function __invoke()
+    public function index()
     {
         return response()->json([
             'categories' => $this->categoryModel->withCount('products')->get()
