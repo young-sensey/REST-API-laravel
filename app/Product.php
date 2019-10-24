@@ -38,4 +38,14 @@ class Product extends Model
     {
         return $this->hasMany('App\Review');
     }
+
+    /**
+     * get average_rating of product
+     *
+     * @return float
+     */
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews->avg('rating'), 1);
+    }
 }

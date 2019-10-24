@@ -7,17 +7,6 @@ use Illuminate\Support\Facades\Input;
 
 class ProductController extends Controller
 {
-    protected $productModel;
-
-    /**
-     * ProductController constructor.
-     * @param Product $productModel
-     */
-    public function __construct(Product $productModel)
-    {
-        $this->productModel = $productModel;
-    }
-
     /**
      * Get list of products with pagination
      *
@@ -27,16 +16,13 @@ class ProductController extends Controller
     {
         $category_id = Input::get('category');
 
-        $products = $this->productModel
+        $products = Product::query()
             ->select(['name', 'short_description', 'price', 'category_id'])
             ->when($category_id, function ($query) use ($category_id) {
                 return $query->where('category_id', '=', $category_id);
             })
+            ->with('category')
             ->paginate();
-
-        $products->transform(function ($product) {
-            return $product->load('category');
-        });
 
         return response()->json(['products' => $products]);
     }
@@ -49,17 +35,11 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->average_rating = round($product->reviews->avg('rating'), 1);
-
-        $product->load('category', 'reviews');
-
-        if ($product->reviews) {
-            foreach ($product->reviews as $review) {
-                $review->load(['user' => function ($query) {
-                    $query->select(['id', 'name']);
-                }]);
-            }
-        }
+        $product->load('category', 'reviews')
+            ->load(['reviews.user' => function ($query) {
+                $query->select(['id', 'name']);
+            }])
+            ->append('average_rating');
 
         return response()->json(['product' => $product]);
     }
