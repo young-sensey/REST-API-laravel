@@ -38,6 +38,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * {@inheritdoc}
+     *
+     * @var array
+     */
+    protected $visible = ['id', 'name'];
+
+    /**
      * Get user review
      */
     public function review()

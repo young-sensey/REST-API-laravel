@@ -35,10 +35,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('category', 'reviews')
-            ->load(['reviews.user' => function ($query) {
-                $query->select(['id', 'name']);
-            }])
+        $product->load('category', 'reviews', 'reviews.user')
             ->append('average_rating');
 
         return response()->json(['product' => $product]);
