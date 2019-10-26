@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductsResource;
 use App\Product;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 
 class ProductController extends Controller
 {
     /**
-     * Get list of products with pagination
+     * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return ProductsResource
      */
     public function index()
     {
@@ -24,20 +28,21 @@ class ProductController extends Controller
             ->with('category')
             ->paginate();
 
-        return response()->json(['products' => $products]);
+        return new ProductsResource($products);
     }
 
     /**
-     * Get information about product
+     * Display the specified resource.
      *
      * @param Product $product
-     * @return \Illuminate\Http\JsonResponse
+     * @return ProductResource
      */
     public function show(Product $product)
     {
         $product->load('category', 'reviews', 'reviews.user')
             ->append('average_rating');
 
-        return response()->json(['product' => $product]);
+        ProductResource::withoutWrapping();
+        return new ProductResource($product);
     }
 }
